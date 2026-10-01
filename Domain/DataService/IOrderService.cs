@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Domain.Dto;
+using System.Threading.Tasks;
 
 namespace Domain.DataService
 {
   public interface IOrderService
   {
+    Task<OrderDto> Get(int id);
   }
 }

@@ -1,10 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
+using Domain.DataAccess;
+using Domain.DataService;
+using Domain.Dto;
+using System.Threading.Tasks;
 
 namespace Service
 {
-  internal class OrderService
+  public class OrderService : IOrderService
   {
+    private readonly IOrderRepository orderRepository;
+    public OrderService(IOrderRepository orderRepository) 
+    {
+      this.orderRepository = orderRepository;
+    }
+    public async Task<OrderDto> Get(int id)
+    {
+      return await orderRepository.GetByIdAsync(id);
+    }
   }
 }
