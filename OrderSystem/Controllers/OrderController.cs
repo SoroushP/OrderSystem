@@ -7,7 +7,7 @@ using System.Web.Http;
 
 namespace OrderSystem.Controllers
 {
-  public class ValuesController : ApiController
+  public class OrderController : ApiController
   {
     // GET api/values
     public IEnumerable<string> Get()
