@@ -154,7 +154,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\OrderController.cs" />
     <Compile Include="DI\DependencyConfig.cs" />
     <Compile Include="Global.asax.cs">
