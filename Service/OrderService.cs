@@ -3,6 +3,7 @@ using Domain.DataAccess;
 using Domain.DataService;
 using Domain.Dto;
 using Domain.Enumeration;
+using Domain.Service;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -12,9 +13,12 @@ namespace Service
 {
   public class OrderService : IOrderService
   {
+    private readonly IAppLogger logger;
     private readonly IOrderRepository orderRepository;
-    public OrderService(IOrderRepository orderRepository) 
+
+    public OrderService(IOrderRepository orderRepository, IAppLogger logger) 
     {
+      this.logger = logger;
       this.orderRepository = orderRepository;
     }
 
@@ -28,10 +32,13 @@ namespace Service
     {
       if (id == default(int))
       {
-        throw new BusinessException(
+        BusinessException businessException = new BusinessException(
                 "INVALID_AMOUNT",
                 "id must be greater than zero.");
+        logger.Error(businessException, "id must be greater than zero");
+        throw businessException;
       }
+      logger.Information("try to get by id");
       return await orderRepository.GetByIdAsync(id, cancellationToken);
     }
 

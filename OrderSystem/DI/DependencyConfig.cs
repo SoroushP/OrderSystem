@@ -5,8 +5,9 @@ using DapperDataAccess.Repository;
 using Domain.DataAccess;
 using Domain.DataService;
 using Domain.Service;
+using Serilog;
 using Service;
-using Service.Security;
+using Service.Logging;
 using System.Configuration;
 using System.Reflection;
 using System.Web.Http;
@@ -23,6 +24,13 @@ namespace WebAPI.DI
       builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
 
       // Services
+      builder.RegisterType<SerilogAppLogger>()
+       .As<IAppLogger>()
+       .SingleInstance();
+
+      builder.RegisterInstance(Log.Logger)
+             .As<ILogger>()
+             .SingleInstance();
 
       builder.RegisterType<OrderService>()
              .As<IOrderService>()

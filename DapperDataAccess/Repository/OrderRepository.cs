@@ -2,6 +2,7 @@
 using DapperDataAccess.Connection;
 using Domain.DataAccess;
 using Domain.Dto;
+using Domain.Service;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
@@ -11,9 +12,11 @@ namespace DapperDataAccess.Repository
 {
   public class OrderRepository : IOrderRepository
   {
+    private readonly IAppLogger logger;
     private readonly SqlConnectionFactory connectionFactory;
-    public OrderRepository(SqlConnectionFactory connectionFactory)
+    public OrderRepository(SqlConnectionFactory connectionFactory, IAppLogger logger)
     {
+      this.logger = logger;
       this.connectionFactory = connectionFactory;
     }
 
@@ -71,6 +74,7 @@ namespace DapperDataAccess.Repository
 
     public async Task<OrderDto> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
+      logger.Information("Get method in dapper class");
       string sql = @"
             SELECT
                 Id,
