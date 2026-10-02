@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Autofac.Integration.WebApi;
+using DapperDataAccess.Connection;
 using DapperDataAccess.Repository;
 using Domain.DataAccess;
 using Domain.DataService;
@@ -33,9 +34,13 @@ namespace WebAPI.DI
         .ConnectionStrings["Order"]
         .ConnectionString;
 
+      builder.RegisterType<SqlConnectionFactory>()
+       .AsSelf()
+       .WithParameter("connectionString", connectionString)
+       .SingleInstance();
+
       builder.RegisterType<OrderRepository>()
              .As<IOrderRepository>()
-             .WithParameter("connectionString", connectionString)
              .InstancePerRequest();
 
       var container = builder.Build();

@@ -5,6 +5,7 @@ using Domain.Dto;
 using Domain.Enumeration;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Service
@@ -17,23 +18,23 @@ namespace Service
       this.orderRepository = orderRepository;
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken)
     {
-      var affectedRows = await orderRepository.DeleteAsync(id);
+      var affectedRows = await orderRepository.DeleteAsync(id, cancellationToken);
       return affectedRows > 0;
     }
 
-    public async Task<OrderDto> Get(int id)
+    public async Task<OrderDto> Get(int id, CancellationToken cancellationToken)
     {
-      return await orderRepository.GetByIdAsync(id);
+      return await orderRepository.GetByIdAsync(id, cancellationToken);
     }
 
-    public async Task<IEnumerable<OrderDto>> Get()
+    public async Task<IEnumerable<OrderDto>> Get(CancellationToken cancellationToken)
     {
-      return await orderRepository.Get();
+      return await orderRepository.Get(cancellationToken);
     }
 
-    public async Task<int> InsertAsync(OrderDto dto)
+    public async Task<int> InsertAsync(OrderDto dto, CancellationToken cancellationToken)
     {
       if (dto == null)
       {
@@ -48,10 +49,10 @@ namespace Service
       dto.Status = OrderStatus.Pending;
       dto.CreatedAt = DateTime.UtcNow;
       dto.UpdatedAt = dto.CreatedAt;
-      return await orderRepository.InsertAsync(dto);
+      return await orderRepository.InsertAsync(dto, cancellationToken);
     }
 
-    public async Task<bool> UpdateAsync(OrderDto dto)
+    public async Task<bool> UpdateAsync(OrderDto dto, CancellationToken cancellationToken)
     {
       if (dto == null)
       { 
@@ -64,7 +65,7 @@ namespace Service
             nameof(dto.TotalAmount));
       }
       dto.UpdatedAt = DateTime.UtcNow;
-      var affectedRows = await orderRepository.UpdateAsync(dto);
+      var affectedRows = await orderRepository.UpdateAsync(dto, cancellationToken);
       return affectedRows > 0;
 
     }

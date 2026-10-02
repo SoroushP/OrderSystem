@@ -1,36 +1,54 @@
 ﻿using Dapper;
+using DapperDataAccess.Connection;
 using Domain.DataAccess;
 using Domain.Dto;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DapperDataAccess.Repository
 {
   public class OrderRepository : IOrderRepository
   {
-    private readonly string connectionString;
-    public OrderRepository(string connectionString) 
+    private readonly SqlConnectionFactory connectionFactory;
+    public OrderRepository(SqlConnectionFactory connectionFactory)
     {
-      this.connectionString = connectionString;
+      this.connectionFactory = connectionFactory;
     }
 
-    public async Task<int> DeleteAsync(int id)
+    public async Task<int> DeleteAsync(int id, CancellationToken cancellationToken)
     {
       string sql = @"
         DELETE FROM Orders
         WHERE Id = @Id";
 
-      using (var connection = new SqlConnection(connectionString))
+      using (var connection = connectionFactory.Create())
       {
-        return await connection.ExecuteAsync(
+        await connection.OpenAsync(cancellationToken);
+        using (var transaction = connection.BeginTransaction())
+        {
+          try
+          {
+            CommandDefinition command = new CommandDefinition(
             sql,
-            new { Id = id });
+            new { Id = id },
+            cancellationToken: cancellationToken);
+
+            var result = await connection.ExecuteAsync(command);
+            transaction.Commit();
+            return result;
+          }
+          catch
+          {
+            transaction.Rollback();
+            throw;
+          }
+        }
       }
     }
 
-    public async Task<IEnumerable<OrderDto>> Get()
+    public async Task<IEnumerable<OrderDto>> Get(CancellationToken cancellationToken)
     {
       string sql = @"
             SELECT
@@ -41,15 +59,17 @@ namespace DapperDataAccess.Repository
                 CreatedAt,
                 UpdatedAt
             FROM Orders";
-      using (IDbConnection connection =
-             new SqlConnection(connectionString))
+      using (IDbConnection connection = connectionFactory.Create())
       {
-        return await connection.QueryAsync<OrderDto>(
-            sql);
+        var command = new CommandDefinition(
+            sql,
+            cancellationToken: cancellationToken);
+
+        return await connection.QueryAsync<OrderDto>(command);
       }
     }
 
-    public async Task<OrderDto> GetByIdAsync(int id)
+    public async Task<OrderDto> GetByIdAsync(int id, CancellationToken cancellationToken)
     {
       string sql = @"
             SELECT
@@ -62,16 +82,18 @@ namespace DapperDataAccess.Repository
             FROM Orders
             WHERE Id = @Id";
 
-      using (IDbConnection connection =
-             new SqlConnection(connectionString))
+      using (IDbConnection connection = connectionFactory.Create())
       {
-        return await connection.QuerySingleOrDefaultAsync<OrderDto>(
+        var command = new CommandDefinition(
             sql,
-            new { Id = id });
+            new { Id = id },
+            cancellationToken: cancellationToken);
+
+        return await connection.QuerySingleOrDefaultAsync<OrderDto>(command);
       }
     }
 
-    public async Task<int> InsertAsync(OrderDto dto)
+    public async Task<int> InsertAsync(OrderDto dto, CancellationToken cancellationToken)
     {
       string sql = @"
         INSERT INTO Orders
@@ -92,15 +114,33 @@ namespace DapperDataAccess.Repository
             @UpdatedAt
         )";
 
-      using (IDbConnection connection = new SqlConnection(connectionString))
+      using (var connection = connectionFactory.Create())
       {
-        return await connection.ExecuteScalarAsync<int>(
-            sql,
-            dto);
+        await connection.OpenAsync(cancellationToken);
+
+        using (var transaction = connection.BeginTransaction())
+        {
+          try
+          {
+            var command = new CommandDefinition(
+           sql,
+           dto,
+           cancellationToken: cancellationToken);
+
+            var result = await connection.ExecuteScalarAsync<int>(command);
+            transaction.Commit();
+            return result;
+          }
+          catch
+          {
+            transaction.Rollback();
+            throw;
+          }
+        }
       }
     }
 
-    public async Task<int> UpdateAsync(OrderDto dto)
+    public async Task<int> UpdateAsync(OrderDto dto, CancellationToken cancellationToken)
     {
       string sql = @"
         UPDATE Orders
@@ -111,9 +151,29 @@ namespace DapperDataAccess.Repository
             UpdatedAt = @UpdatedAt
         WHERE Id = @Id";
 
-      using (var connection = new SqlConnection(connectionString))
+      using (var connection = connectionFactory.Create())
       {
-        return await connection.ExecuteAsync(sql, dto);
+        await connection.OpenAsync(cancellationToken);
+
+        using (var transaction = connection.BeginTransaction())
+        {
+          try
+          {
+            var command = new CommandDefinition(
+           sql,
+           dto,
+           cancellationToken: cancellationToken);
+
+            var result = await connection.ExecuteAsync(command);
+            transaction.Commit();
+            return result;
+          }
+          catch
+          {
+            transaction.Rollback();
+            throw;
+          }
+        }
       }
     }
   }

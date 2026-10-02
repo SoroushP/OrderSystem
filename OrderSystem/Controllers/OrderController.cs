@@ -1,6 +1,8 @@
 ﻿using Domain.DataService;
 using Domain.Dto;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Http;
 using WebAPI.Mapping;
 
@@ -17,7 +19,8 @@ namespace OrderSystem.Controllers
     [HttpGet]
     public async Task<IHttpActionResult> Get()
     {
-      var order = await orderService.Get();
+      CancellationToken cancellationToken = HttpContext.Current.Response.ClientDisconnectedToken;
+      var order = await orderService.Get(cancellationToken);
 
       if (order == null)
         return NotFound();
@@ -28,7 +31,8 @@ namespace OrderSystem.Controllers
     [HttpGet]
     public async Task<IHttpActionResult> Get(int id)
     {
-      var order = await orderService.Get(id);
+      CancellationToken cancellationToken = HttpContext.Current.Response.ClientDisconnectedToken;
+      var order = await orderService.Get(id, cancellationToken);
 
       if (order == null)
         return NotFound();
@@ -42,7 +46,8 @@ namespace OrderSystem.Controllers
       if (dto == null)
         return BadRequest("Request body is required.");
 
-      var id = await orderService.InsertAsync(dto);
+      CancellationToken cancellationToken = HttpContext.Current.Response.ClientDisconnectedToken;
+      var id = await orderService.InsertAsync(dto, cancellationToken);
 
       return Ok(id);
     }
@@ -53,7 +58,8 @@ namespace OrderSystem.Controllers
       if (dto == null)
         return BadRequest("Request body is required.");
 
-      var updated = await orderService.UpdateAsync(dto);
+      CancellationToken cancellationToken = HttpContext.Current.Response.ClientDisconnectedToken;
+      var updated = await orderService.UpdateAsync(dto, cancellationToken);
       if (!updated)
         return NotFound();
 
@@ -63,7 +69,8 @@ namespace OrderSystem.Controllers
     [HttpDelete]
     public async Task<IHttpActionResult> Delete(int id)
     {
-      var deleted = await orderService.DeleteAsync(id);
+      CancellationToken cancellationToken = HttpContext.Current.Response.ClientDisconnectedToken;
+      var deleted = await orderService.DeleteAsync(id, cancellationToken);
       if (!deleted)
         return NotFound();
 
