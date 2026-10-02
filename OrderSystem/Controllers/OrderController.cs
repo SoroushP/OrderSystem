@@ -1,8 +1,8 @@
 ﻿using Domain.DataService;
+using Domain.Dto;
 using System.Threading.Tasks;
 using System.Web.Http;
 using WebAPI.Mapping;
-using WebAPI.ViewModel;
 
 namespace OrderSystem.Controllers
 {
@@ -14,11 +14,60 @@ namespace OrderSystem.Controllers
       this.orderService = orderService;
     }
 
-    // GET api/values/5
-    public async Task<OrderViewModel> Get(int id)
+    [HttpGet]
+    public async Task<IHttpActionResult> Get()
     {
-      var result = await orderService.Get(id);
-      return result.ToViewModel();
+      var order = await orderService.Get();
+
+      if (order == null)
+        return NotFound();
+
+      return Json(order.ToViewModel());
+    }
+
+    [HttpGet]
+    public async Task<IHttpActionResult> Get(int id)
+    {
+      var order = await orderService.Get(id);
+
+      if (order == null)
+        return NotFound();
+
+      return Json(order.ToViewModel());
+    }
+
+    [HttpPost]
+    public async Task<IHttpActionResult> Create(OrderDto dto)
+    {
+      if (dto == null)
+        return BadRequest("Request body is required.");
+
+      var id = await orderService.InsertAsync(dto);
+
+      return Ok(id);
+    }
+
+    [HttpPut]
+    public async Task<IHttpActionResult> Update(OrderDto dto)
+    {
+      if (dto == null)
+        return BadRequest("Request body is required.");
+
+      var updated = await orderService.UpdateAsync(dto);
+      if (!updated)
+        return NotFound();
+
+      return Ok();
+    }
+
+    [HttpDelete]
+    public async Task<IHttpActionResult> Delete(int id)
+    {
+      var deleted = await orderService.DeleteAsync(id);
+      if (!deleted)
+        return NotFound();
+
+      return Ok();
     }
   }
 }

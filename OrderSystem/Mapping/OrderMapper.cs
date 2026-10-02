@@ -1,4 +1,6 @@
 ﻿using Domain.Dto;
+using System.Collections.Generic;
+using System.Linq;
 using WebAPI.ViewModel;
 
 namespace WebAPI.Mapping
@@ -12,5 +14,7 @@ namespace WebAPI.Mapping
       Status = dto.Status,
       TotalAmount = dto.TotalAmount
     };
+
+    public static IEnumerable<OrderViewModel> ToViewModel(this IEnumerable<OrderDto> dtos) => dtos.Select(dto => dto.ToViewModel());
   }
 }

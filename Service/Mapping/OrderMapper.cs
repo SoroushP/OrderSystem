@@ -1,5 +1,7 @@
 ﻿using Domain.DataModel;
 using Domain.Dto;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Service.Mapping
 {
@@ -14,5 +16,8 @@ namespace Service.Mapping
       CreatedAt = model.CreatedAt,
       UpdatedAt = model.UpdatedAt
     };
+
+    public static IEnumerable<OrderDto> ToDto(this IEnumerable<Order> models) => models.Select(model => model.ToDto());
+
   }
 }

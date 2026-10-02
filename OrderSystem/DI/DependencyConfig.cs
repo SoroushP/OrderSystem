@@ -3,7 +3,9 @@ using Autofac.Integration.WebApi;
 using DapperDataAccess.Repository;
 using Domain.DataAccess;
 using Domain.DataService;
+using Domain.Service;
 using Service;
+using Service.Security;
 using System.Configuration;
 using System.Reflection;
 using System.Web.Http;
@@ -20,6 +22,7 @@ namespace WebAPI.DI
       builder.RegisterApiControllers(Assembly.GetExecutingAssembly());
 
       // Services
+
       builder.RegisterType<OrderService>()
              .As<IOrderService>()
              .InstancePerRequest();
