@@ -1,7 +1,7 @@
 ﻿using Domain.Enumeration;
 using Newtonsoft.Json;
 using Service.Security;
-using WebAPI.JsonConverter;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebAPI.ViewModel
 {
@@ -9,8 +9,14 @@ namespace WebAPI.ViewModel
   {
     [JsonConverter(typeof(EncryptedIdConverter))]
     public int Id { get; set; }
+    
+    [Required]
     public int CustomerId { get; set; }
+    
+    [Range(0.0, double.MaxValue)]
     public decimal TotalAmount { get; set; }
+
+    [Required]
     public OrderStatus Status { get; set; }
   }
 }

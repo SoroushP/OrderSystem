@@ -157,12 +157,14 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\OrderController.cs" />
     <Compile Include="DI\DependencyConfig.cs" />
+    <Compile Include="ExceptionHandler\GlobalExceptionHandler.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="JsonConverter\EncryptedIdAttribute.cs" />
     <Compile Include="Mapping\OrderMapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModel\ErrorViewModel.cs" />
     <Compile Include="ViewModel\OrderViewModel.cs" />
   </ItemGroup>
   <ItemGroup>

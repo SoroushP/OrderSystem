@@ -26,6 +26,12 @@ namespace Service
 
     public async Task<OrderDto> Get(int id, CancellationToken cancellationToken)
     {
+      if (id == default(int))
+      {
+        throw new BusinessException(
+                "INVALID_AMOUNT",
+                "id must be greater than zero.");
+      }
       return await orderRepository.GetByIdAsync(id, cancellationToken);
     }
 

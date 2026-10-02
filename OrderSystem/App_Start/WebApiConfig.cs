@@ -1,5 +1,6 @@
 ﻿using System.Web.Http;
-using WebAPI.JsonConverter;
+using System.Web.Http.ExceptionHandling;
+using WebAPI.ExceptionHandler;
 
 namespace WebAPI.App_Start
 {
@@ -17,6 +18,7 @@ namespace WebAPI.App_Start
           routeTemplate: "api/{controller}/{id}",
           defaults: new { id = RouteParameter.Optional }
       );
+      config.Services.Replace(typeof(IExceptionHandler), new GlobalExceptionHandler());
     }
   }
 }

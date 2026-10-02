@@ -44,8 +44,13 @@ namespace OrderSystem.Controllers
     public async Task<IHttpActionResult> Create(OrderDto dto)
     {
       if (dto == null)
+      {
         return BadRequest("Request body is required.");
-
+      }
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
       CancellationToken cancellationToken = HttpContext.Current.Response.ClientDisconnectedToken;
       var id = await orderService.InsertAsync(dto, cancellationToken);
 
@@ -56,8 +61,13 @@ namespace OrderSystem.Controllers
     public async Task<IHttpActionResult> Update(OrderDto dto)
     {
       if (dto == null)
+      {
         return BadRequest("Request body is required.");
-
+      }
+      if (!ModelState.IsValid)
+      {
+        return BadRequest(ModelState);
+      }
       CancellationToken cancellationToken = HttpContext.Current.Response.ClientDisconnectedToken;
       var updated = await orderService.UpdateAsync(dto, cancellationToken);
       if (!updated)
