@@ -14,11 +14,14 @@ namespace Service
   public class OrderService : IOrderService
   {
     private readonly IAppLogger logger;
+    private readonly ICacheService cacheService;
     private readonly IOrderRepository orderRepository;
+    private const string OrderCacheKeyPrefix = "order:";
 
-    public OrderService(IOrderRepository orderRepository, IAppLogger logger) 
+    public OrderService(IOrderRepository orderRepository, IAppLogger logger, ICacheService cacheService) 
     {
       this.logger = logger;
+      this.cacheService = cacheService;
       this.orderRepository = orderRepository;
     }
 
@@ -38,8 +41,21 @@ namespace Service
         logger.Error(businessException, "id must be greater than zero");
         throw businessException;
       }
+      string cacheKey = GetCacheKey(id);
+      var cachedOrder = await cacheService.GetAsync<OrderDto>(cacheKey);
+      if (cachedOrder != null)
+      {
+        logger.Information("Order retrieved from cache. OrderId: {OrderId}", id);
+        return cachedOrder;
+      }
       logger.Information("try to get by id");
-      return await orderRepository.GetByIdAsync(id, cancellationToken);
+      var result = await orderRepository.GetByIdAsync(id, cancellationToken);
+      await cacheService.SetAsync(
+        cacheKey,
+        result,
+        TimeSpan.FromMinutes(5));
+      logger.Information("Order retrieved from database and cached. OrderId: {OrderId}", id);
+      return result;
     }
 
     public async Task<IEnumerable<OrderDto>> Get(CancellationToken cancellationToken)
@@ -80,7 +96,11 @@ namespace Service
       dto.UpdatedAt = DateTime.UtcNow;
       var affectedRows = await orderRepository.UpdateAsync(dto, cancellationToken);
       return affectedRows > 0;
+    }
 
+    private string GetCacheKey(int id)
+    {
+      return $"{OrderCacheKeyPrefix}{id}";
     }
   }
 }

@@ -7,7 +7,9 @@ using Domain.DataService;
 using Domain.Service;
 using Serilog;
 using Service;
+using Service.Cache;
 using Service.Logging;
+using StackExchange.Redis;
 using System.Configuration;
 using System.Reflection;
 using System.Web.Http;
@@ -31,6 +33,20 @@ namespace WebAPI.DI
       builder.RegisterInstance(Log.Logger)
              .As<ILogger>()
              .SingleInstance();
+
+      var redisConnectionString =
+    ConfigurationManager
+        .ConnectionStrings["Redis"]
+        .ConnectionString;
+
+      builder.RegisterInstance(
+              ConnectionMultiplexer.Connect(redisConnectionString))
+          .As<ConnectionMultiplexer>()
+          .SingleInstance();
+
+      builder.RegisterType<RedisCacheService>()
+          .As<ICacheService>()
+          .SingleInstance();
 
       builder.RegisterType<OrderService>()
              .As<IOrderService>()
